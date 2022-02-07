@@ -2,6 +2,8 @@
 
 (As of this commit) deployed at: [https://lit-river-34253.herokuapp.com/](https://lit-river-34253.herokuapp.com/)
 
+You may want to check-out `db.py` in particular. This is a more complicated way of approaching the database code, but it DEFINITELY has it's advantages.
+
 docs:
 * <http://flask.pocoo.org/docs/1.0/quickstart/>
 * <https://devcenter.heroku.com/categories/python-support>
@@ -27,3 +29,4 @@ docs:
 * To test locally `heroku local dev`
 * To deploy to production (after making a commit) `hit push heroku` 
 * to view logs on production server `heroku logs --tail`
+
