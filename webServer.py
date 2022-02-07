@@ -1,38 +1,18 @@
+from sqlite3 import dbapi2
 from flask import Flask, g, render_template, request, redirect, url_for
 import dice
 import dice.utilities
 import random
 import psycopg2
 import os
+import db
 
 app = Flask(__name__)
+# import after making app -- this is important the way I have db.py setup
 
-
-##### Database functions
-## This is a kinda lame way to do it, that is better exist, but it
-## Shows off some cool ideas
-def connect_db():
-    """Connects to the specific database."""
-    return psycopg2.connect(os.environ.get('DATABASE_URL'), sslmode='require')
-
-def get_db():
-    """Opens a new database connection if there is none yet for the
-    current application context.
-    """
-    # The "g" object is a "global" Note -- this is global within the context of
-    # a single request, not what we normally call global.
-    if not hasattr(g, 'pg_db'):
-        g.pg_db = connect_db()
-    return g.pg_db
-
-# This teardown happens after each request, and closes the DB
-@app.after_request
-def close_db(response):
-    """Closes the database again at the end of the request."""
-    if hasattr(g, 'db'):
-        app.logger.warn("teardown")
-        g.pg_db.close()
-    return response
+@app.before_first_request
+def init():
+    db.setup()
 
 
 @app.route('/')
@@ -41,14 +21,11 @@ def frontPage():
 
 @app.route('/roll',methods=['GET'])
 def viewRolls():
-    conn = get_db()
-    cur = conn.cursor()
-    cur.execute("SELECT roll_id, roll_memo, roll_config, roll_result FROM roll;")
-    rolls = cur.fetchall()
-    olls = [record for record in cur]
-    cur.close()
-
-    return render_template("all_rolls.html", rolls=rolls)
+    
+    with db.get_db_cursor(False) as cur:
+        cur.execute("SELECT roll_id, roll_memo, roll_config, roll_result FROM roll;")
+        rolls = cur.fetchall()
+        return render_template("all_rolls.html", rolls=rolls)
 
 @app.route('/roll', methods=['POST'])
 def doRoll():
@@ -58,28 +35,19 @@ def doRoll():
     roll_result_long = dice.utilities.verbose_print(result)
     roll_result = int(result.result)
 
-    conn = get_db()
-    cur = conn.cursor()
-    cur.execute("insert into roll (roll_memo, roll_config, roll_result_long, roll_result) values (%s,%s,%s,%s) returning roll_id;", (memo, roll_config, roll_result_long, roll_result))
-    id = cur.fetchone()
-    id = id[0]
-    cur.close()
-    conn.commit()
-
-    return redirect(url_for("viewRollDetails", roll_id = id))
+    with db.get_db_cursor(True) as cur:
+        cur.execute("insert into roll (roll_memo, roll_config, roll_result_long, roll_result) values (%s,%s,%s,%s) returning roll_id;", (memo, roll_config, roll_result_long, roll_result))
+        id = cur.fetchone()
+        id = id[0]
+        return redirect(url_for("viewRollDetails", roll_id = id))
 
 @app.route('/roll/<roll_id>')
 def viewRollDetails(roll_id):
-    conn = get_db()
-
-    cur = conn.cursor()
-    cur.execute("SELECT roll_id, roll_memo, roll_config, roll_result, roll_result_long FROM roll where roll_id = %s;", (roll_id,))
-    roll = cur.fetchone()
-    cur.close()
-    # I _REALLY_ should be repackaging this row into at least a named tuple or a dictionary.
-    # having to do lookup by index in the front-end is terrible practice.
-
-    return render_template("one_rolls.html", roll=roll)
+    with db.get_db_cursor() as cur:
+        # NOTE -- since I use a dictCursor over in db.py you can use the rows as dictionaries OR tuples.
+        cur.execute("SELECT roll_id, roll_memo, roll_config, roll_result, roll_result_long FROM roll where roll_id = %s;", (roll_id,))
+        roll = cur.fetchone()
+        return render_template("one_rolls.html", roll=roll)
 
 if __name__ == '__main__':
     app.run()

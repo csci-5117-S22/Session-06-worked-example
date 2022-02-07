@@ -3,7 +3,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <link rel="stylesheet" href="static/style.css" />
+  <link rel="stylesheet" href="/static/style.css" />
   <title>Dice roller</title>
 </head>
 
@@ -15,7 +15,7 @@
 
   <ol>
     {% for roll in rolls %}
-      <li><a href="{{url_for("viewRollDetails", roll_id = roll[0])}}">{{roll[1]}} = {{roll[3]}}</a> </li>
+      <li><a href="{{url_for("viewRollDetails", roll_id = roll['roll_id'])}}">{{roll['roll_memo']}} = {{roll['roll_result']}}</a> </li>
     {% endfor %}
   </ol>
 

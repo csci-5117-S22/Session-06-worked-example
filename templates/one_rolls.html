@@ -1,11 +1,24 @@
-<html>
-    <body>
-        Memo: {{roll[1]}}
-        <br>
-        result: {{roll[3]}}
-        <br>
-        result explained: 
-        <pre>{{roll[4]}}</pre>
-        <br>
-    </body>
+<!doctype html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="/static/style.css" />
+  <title>Dice roller</title>
+</head>
+
+<body>
+    <footer>
+        Dice rolling and D&amp;D style dice-parsing code via <a href = "https://github.com/borntyping/python-dice">python-dice</a> project by Sam Clements used under the MIT license.
+    </footer>
+    <dl>
+        <dt>Memo</dt>
+        <dd>{{roll['roll_memo']}}</dd>
+    </dl>
+    <dl>
+        <dt>Result</dt>
+        <dd>{{roll['roll_result']}}</dd>
+        <dd><pre>{{roll['roll_result_long']}}</pre></dd>
+    </dl>
+</body>
 </html>
