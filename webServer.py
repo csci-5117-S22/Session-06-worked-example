@@ -56,7 +56,7 @@ def doRoll():
     memo = request.form.get('roll_memo', 'nobody')
     result = dice.roll(roll_config, raw=True)
     roll_result_long = dice.utilities.verbose_print(result)
-    roll_result = result.result
+    roll_result = int(result.result)
 
     conn = get_db()
     cur = conn.cursor()
