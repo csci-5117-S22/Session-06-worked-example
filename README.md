@@ -1,4 +1,7 @@
-# An example applicatino showing how to deploy with heroku and postgress
+# An example application showing how to deploy with heroku and postgress
+
+(As of this commit) deployed at: (https://lit-river-34253.herokuapp.com/)[https://lit-river-34253.herokuapp.com/]
+
 docs:
 * <http://flask.pocoo.org/docs/1.0/quickstart/>
 * <https://devcenter.heroku.com/categories/python-support>
